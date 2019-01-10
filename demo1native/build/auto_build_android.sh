@@ -14,3 +14,4 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$NDK_ROOT/build/cmake/android.toolchain.cmake  \
 -DCMAKE_CXX_FLAGS="-fpic -fexceptions -frtti" ..
 
 make
+
