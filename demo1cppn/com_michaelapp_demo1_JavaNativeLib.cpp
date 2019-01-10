@@ -1,6 +1,7 @@
 //JavaNavieLib.cpp
 
 #include <jni.h>
+#include <string>
 #include "com_michaelapp_demo1_JavaNativeLib.h"
 
 
