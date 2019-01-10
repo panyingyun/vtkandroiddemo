@@ -15,3 +15,5 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$NDK_ROOT/build/cmake/android.toolchain.cmake  \
 
 make
 
+mv libjavanativelib.so ../../jniLibs/armeabi-v7a/ -f
+
