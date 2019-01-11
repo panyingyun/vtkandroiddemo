@@ -1,4 +1,4 @@
-## CentOS 7.2  Cross Build VTK for Android Application
+## CentOS 7.2 CMake Cross Build VTK for Android Application
  
 ### 1¡¢Install Android NDK
 
