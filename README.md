@@ -118,4 +118,29 @@
 
     vtkdemo
 	
+#### T9、CMake cross-compiling-for-android
 
+	https://cmake.org/cmake/help/v3.7/manual/cmake-toolchains.7.html#cross-compiling-for-android
+	https://cmake.org/cmake/help/v3.7/manual/cmake-toolchains.7.html#cross-compiling-for-android-with-a-standalone-toolchain
+
+#### T10、Crash Now
+
+	Crash log, Maybe glESv3 have not support glDrawBuffer, only support glDrawBuffers.
+	Call some help from :
+	https://gitlab.kitware.com/vtk/vtk/issues/16913
+	https://github.com/spherik/Android-vtk-skeleton/issues/1
+	
+```
+	--------- beginning of crash
+	kitware.com.volumerender E/AndroidRuntime: FATAL EXCEPTION: GLThread 3658
+    Process: kitware.com.volumerender, PID: 16404
+    java.lang.UnsatisfiedLinkError: dlopen failed: cannot locate symbol "glDrawBuffer" \
+		referenced by "/data/app/kitware.com.volumerender-lhp_zoAPmbgFkLST-3uj1A==/lib/arm/libVolumeRender.so"...
+        at java.lang.Runtime.loadLibrary0(Runtime.java:1016)
+        at java.lang.System.loadLibrary(System.java:1669)
+        at kitware.com.volumerender.VolumeRenderLib.<clinit>(VolumeRenderLib.java:41)
+        at kitware.com.volumerender.VolumeRenderLib.init(Native Method)
+        at kitware.com.volumerender.VolumeRenderView$Renderer.onSurfaceChanged(VolumeRenderView.java:160)
+        at android.opengl.GLSurfaceView$GLThread.guardedRun(GLSurfaceView.java:1555)
+        at android.opengl.GLSurfaceView$GLThread.run(GLSurfaceView.java:1270)
+```
