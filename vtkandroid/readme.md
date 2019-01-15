@@ -52,3 +52,8 @@ cp  auto_build_clean.sh auto_build_android.sh  build
 
 ### just wait
 
+also, You can also use the compiled Android VTK library.
+you can download vtk-android.tar.gz 
+from https://github.com/panyingyun/vtkandroiddemo/releases/download/1.0/vtk-android.tar.gz.
+
+

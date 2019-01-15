@@ -1,5 +1,3 @@
-# vtk android demo
-
 ## CentOS 7.2 CMake Cross Build VTK for Android Application
 
 ### VTK Android移植过程记录：
@@ -7,7 +5,7 @@
 #### T1、github 建立新的repo用于记录该过程
 	demo1
 	
-### T2、CentOS下cmake编译可执行的demonative代码
+#### T2、CentOS下cmake编译可执行的demonative代码
 	(1) CentOS install lastest cmake 
 	
 	https://cmake.org/download/
@@ -76,7 +74,7 @@
     demo1
 	编译为测试APK
 	
-T6、编译VTK为so
+#### T6、编译VTK为so
 	
 	yum install mesa-libGL-devel
 	yum install mesa-libGLU-devel
@@ -87,7 +85,7 @@ T6、编译VTK为so
 	cmake -DCMAKE_TOOLCHAIN_FILE=$NDK_ROOT/build/cmake/android.toolchain.cmake  \
 	-DANDROID_NDK=$NDK_ROOT -DANDROID_ABI="armeabi-v7a" \
 	-DANDROID_TOOLCHAIN_NAME=arm-linux-androideabi-4.9 \
-	-DANDROID_NATIVE_API_LEVEL=16 \
+	-DANDROID_NATIVE_API_LEVEL=24 \
 	-DANDROID_STL="c++_static" \
 	-DCMAKE_C_FLAGS="-fpic -fexceptions -frtti" \
 	-DCMAKE_CXX_FLAGS="-fpic -fexceptions -frtti" \
@@ -104,13 +102,15 @@ T6、编译VTK为so
 	
 	参考：
 	https://github.com/spherik/Android-vtk-skeleton/blob/master/build-vtk-android.sh
-	
-T7、编译DemoVTK应用为可执行文件，并且能在手机上渲染出来
 
-    vtknativedemo
+#### T7、 Compiled Android VTK library
+
+	also, You can also use the compiled Android VTK library.
+	you can download vtk-android.tar.gz 
+	from https://github.com/panyingyun/vtkandroiddemo/releases/download/1.0/vtk-android.tar.gz.	
 	
-	
-T8、创建vtkdemo工程，引入java调用native形式的VTK Demo
+#### T8、创建vtkdemo工程，引入java调用native形式的VTK Demo
 
     vtkdemo
 	
+
