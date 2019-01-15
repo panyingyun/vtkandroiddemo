@@ -66,6 +66,10 @@
 	详细见：
 	https://github.com/panyingyun/vtkandroiddemo/tree/master/demo1
 	
+	JNI请参考：
+	https://www.jianshu.com/p/0f34c097028a
+	https://www.jianshu.com/p/b71aeb4ed13d
+	
 	ConstraintLayout布局文件请参考：
 	https://juejin.im/entry/5a0f93b4f265da432717ce87
 	https://mp.weixin.qq.com/s/gGR2itbY7hh9fo61SxaMQQ
@@ -83,25 +87,26 @@
 
 	
 	cmake -DCMAKE_TOOLCHAIN_FILE=$NDK_ROOT/build/cmake/android.toolchain.cmake  \
-	-DANDROID_NDK=$NDK_ROOT -DANDROID_ABI="armeabi-v7a" \
-	-DANDROID_TOOLCHAIN_NAME=arm-linux-androideabi-4.9 \
-	-DANDROID_NATIVE_API_LEVEL=24 \
-	-DANDROID_STL="c++_static" \
-	-DCMAKE_C_FLAGS="-fpic -fexceptions -frtti" \
-	-DCMAKE_CXX_FLAGS="-fpic -fexceptions -frtti" \
+	-DCMAKE_ANDROID_NDK=$NDK_ROOT \
+	-DCMAKE_SYSTEM_NAME=Android \
 	-DCMAKE_VERBOSE_MAKE=ON \
 	-DCMAKE_BUILD_TYPE=Release \
-	-DOPENGL_ES_VERSION=3.0 \
+	-DCMAKE_CXX_FLAGS='-fpic -fexceptions -frtti' \
+	-DCMAKE_C_FLAGS='-fpic' \
+	-DCMAKE_ANDROID_STL_TYPE='c++_static' \
+	-DCMAKE_SYSTEM_VERSION=24 \
 	-DVTK_ANDROID_BUILD=ON \
-	-DANDROID_ARCH_ABI='armeabi-v7a' \
-	-DCMAKE_INSTALL_PREFIX='/home/ndk/androidvtk' ..
-	
+	-DBUILD_EXAMPLES=ON \
+	-DANDROID_NATIVE_API_LEVEL=24 \
+	-DOPENGL_ES_VERSION=3.0 ..
+
 	make -j8
 	
 	直接这样就可以了
 	
 	参考：
-	https://github.com/spherik/Android-vtk-skeleton/blob/master/build-vtk-android.sh
+	https://github.com/panyingyun/vtkandroiddemo/blob/master/vtkandroid/auto_build_android.sh
+
 
 #### T7、 Compiled Android VTK library
 
