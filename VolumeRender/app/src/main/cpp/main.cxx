@@ -71,12 +71,12 @@
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "NativeVTK", __VA_ARGS__))
 
 extern "C" {
-    JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEnv * env, jobject obj,  jint width, jint height);
-    JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_render(JNIEnv * env, jobject obj, jlong renWinP);
-    JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
+    JNIEXPORT jlong JNICALL Java_kitware_com_VolumeRender_VolumeRenderLib_init(JNIEnv * env, jobject obj,  jint width, jint height);
+    JNIEXPORT void JNICALL Java_kitware_com_VolumeRender_VolumeRenderLib_render(JNIEnv * env, jobject obj, jlong renWinP);
+    JNIEXPORT void JNICALL Java_kitware_com_VolumeRender_VolumeRenderLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
       jboolean down, jint keyCode, jint metaState, jint repeatCount
       );
-    JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onMotionEvent(JNIEnv * env, jobject obj, jlong udp,
+    JNIEXPORT void JNICALL Java_kitware_com_VolumeRender_VolumeRenderLib_onMotionEvent(JNIEnv * env, jobject obj, jlong udp,
       jint action,
       jint eventPointer,
       jint numPtrs,
@@ -94,7 +94,7 @@ struct userData
 /*
  * Here is where you would setup your pipeline and other normal VTK logic
  */
-JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEnv * env, jobject obj,  jint width, jint height)
+JNIEXPORT jlong JNICALL Java_kitware_com_VolumeRender_VolumeRenderLib_init(JNIEnv * env, jobject obj,  jint width, jint height)
 {
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   char jniS[4] = {'j','n','i',0};
@@ -180,7 +180,7 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
   return (jlong)foo;
 }
 
-JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_render(JNIEnv * env, jobject obj, jlong udp)
+JNIEXPORT void JNICALL Java_kitware_com_VolumeRender_VolumeRenderLib_render(JNIEnv * env, jobject obj, jlong udp)
 {
   struct userData *foo = (userData *)(udp);
   foo->RenderWindow->SwapBuffersOff(); // android does it
@@ -188,14 +188,14 @@ JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_render(JNIE
   foo->RenderWindow->SwapBuffersOn(); // reset
 }
 
-JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
+JNIEXPORT void JNICALL Java_kitware_com_VolumeRender_VolumeRenderLib_onKeyEvent(JNIEnv * env, jobject obj, jlong udp,
   jboolean down, jint keyCode, jint metaState, jint repeatCount)
 {
   struct userData *foo = (userData *)(udp);
   foo->Interactor->HandleKeyEvent(down, keyCode, metaState, repeatCount);
 }
 
-JNIEXPORT void JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_onMotionEvent(JNIEnv * env, jobject obj, jlong udp,
+JNIEXPORT void JNICALL Java_kitware_com_VolumeRender_VolumeRenderLib_onMotionEvent(JNIEnv * env, jobject obj, jlong udp,
       jint action,
       jint eventPointer,
       jint numPtrs,
