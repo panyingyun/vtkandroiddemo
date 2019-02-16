@@ -34,22 +34,24 @@
 
 #include "vtkNew.h"
 
-
 #include <vtkActor.h>
+#include <vtkCamera.h>
+#include <vtkCellArray.h>
 #include <vtkColorTransferFunction.h>
-#include <vtkContourFilter.h>
-#include <vtkDataSetTriangleFilter.h>
-#include <vtkPiecewiseFunction.h>
+#include <vtkFloatArray.h>
+#include <vtkNamedColors.h>
+#include <vtkNew.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkCellData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkPolyDataWriter.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkSmartPointer.h>
-#include <vtkStructuredPointsReader.h>
-#include <vtkThreshold.h>
-#include <vtkUnstructuredGridVolumeRayCastMapper.h>
-#include <vtkVolumeProperty.h>
-#include <vtkGPUVolumeRayCastMapper.h>
+
+#include <array>
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkVolumeProperty.h"
@@ -115,53 +117,77 @@ JNIEXPORT jlong JNICALL Java_kitware_com_volumerender_VolumeRenderLib_init(JNIEn
   vtkNew<vtkAndroidRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkOpenGLGPUVolumeRayCastMapper> volumeMapper;
+
+ vtkNew<vtkNamedColors> colors;
+
+    std::array<std::array<double, 3>, 8> pts = {{{{0, 0, 0}},
+                                                 {{1, 0, 0}},
+                                                 {{1, 1, 0}},
+                                                 {{0, 1, 0}},
+                                                 {{0, 0, 1}},
+                                                 {{1, 0, 1}},
+                                                 {{1, 1, 1}},
+                                                 {{0, 1, 1}}}};
+    // The ordering of the corner points on each face.
+    std::array<std::array<vtkIdType, 4>, 6> ordering = {{{{0, 1, 2, 3}},
+                                                         {{4, 5, 6, 7}},
+                                                         {{0, 1, 5, 4}},
+                                                         {{1, 2, 6, 5}},
+                                                         {{2, 3, 7, 6}},
+                                                         {{3, 0, 4, 7}}}};
+
+    // We'll create the building blocks of polydata including data attributes.
+    vtkNew<vtkPolyData> cube;
+    vtkNew<vtkPoints> points;
+    vtkNew<vtkCellArray> polys;
+    vtkNew<vtkFloatArray> scalars;
+    vtkNew<vtkFloatArray> cellscalars;
+
+    // Load the point, cell, and data attributes.
+    for (auto i = 0ul; i < pts.size(); ++i) {
+        points->InsertPoint(i, pts[i].data());
+        scalars->InsertTuple1(i, i);
+    }
+
+	int index = 0;
+    for (auto&& i : ordering) {
+        index++;
+        std::cout << "index  = " << index << std::endl;
+        polys->InsertNextCell(vtkIdType(i.size()), i.data());
+        cellscalars->InsertTuple1(index, index);
+    }
+
+    // We now assign the pieces to the vtkPolyData.
+    cube->SetPoints(points);
+    cube->SetPolys(polys);
+    //cube->GetPointData()->SetScalars(scalars);
+    cube->GetCellData()->SetScalars(cellscalars);
+
+vtkNew<vtkPolyDataMapper> cubeMapper;
+    cubeMapper->SetInputData(cube);
+    cubeMapper->SetScalarRange(cube->GetScalarRange());
+    vtkNew<vtkColorTransferFunction> colorTransferFunction;
+    colorTransferFunction->AddRGBPoint(1, 0.0, 0.0, 0.0);
+    colorTransferFunction->AddRGBPoint(2, 0.2, 0.0, 1.0);
+    colorTransferFunction->AddRGBPoint(3, 0.4, 1.0, 0.0);
+    colorTransferFunction->AddRGBPoint(4, 0.6, 0.0, 1.0);
+    colorTransferFunction->AddRGBPoint(5, 0.8, 1.0, 0.0);
+    colorTransferFunction->AddRGBPoint(6, 1.0, 1.0, 1.0);
+    cubeMapper->SetLookupTable(colorTransferFunction);
+    vtkNew<vtkActor> cubeActor;
+    cubeActor->SetMapper(cubeMapper);
+
+    // The usual rendering stuff.
+    vtkNew<vtkCamera> camera;
+    camera->SetPosition(1, 1, 1);
+    camera->SetFocalPoint(0, 0, 0);
 
 
-
-  vtkNew<vtkStructuredPointsReader> mi;
-  mi->SetFileName("/sdcard/mummy.128.vtk");
-  mi->Update();
-
-	// Create transfer mapping scalar value to opacity
-	vtkSmartPointer<vtkPiecewiseFunction> opacityTransferFunction =
-		vtkSmartPointer<vtkPiecewiseFunction>::New();
-	opacityTransferFunction->AddPoint(70, 0.00);
-	opacityTransferFunction->AddPoint(90, 0.40);
-	opacityTransferFunction->AddPoint(180, 0.60);
-
-	// Create transfer mapping scalar value to color
-	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
-		vtkSmartPointer<vtkColorTransferFunction>::New();
-	colorTransferFunction->AddRGBPoint(0.000, 0.00, 0.00, 0.00);
-	colorTransferFunction->AddRGBPoint(64.00, 1.00, 0.52, 0.30);
-	colorTransferFunction->AddRGBPoint(190.0, 1.00, 1.00, 1.00);
-	colorTransferFunction->AddRGBPoint(220.0, 0.20, 0.20, 0.20);
-
-		vtkSmartPointer<vtkVolumeProperty> volumeProperty =
-    		vtkSmartPointer<vtkVolumeProperty>::New();
-    	volumeProperty->SetColor(colorTransferFunction);
-    	volumeProperty->SetScalarOpacity(opacityTransferFunction);
-    	volumeProperty->ShadeOn();
-    	volumeProperty->SetInterpolationTypeToLinear();
-    	volumeProperty->SetAmbient(0.4);
-    	volumeProperty->SetDiffuse(0.6);
-    	volumeProperty->SetSpecular(0.2);
-
-	vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper =
-		vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
-	volumeMapper->SetInputConnection(mi->GetOutputPort());
-
-	vtkSmartPointer<vtkVolume> volume =
-		vtkSmartPointer<vtkVolume>::New();
-	volume->SetMapper(volumeMapper);
-	volume->SetProperty(volumeProperty);
+    renderer->AddActor(cubeActor);
+    renderer->SetActiveCamera(camera);
+    renderer->ResetCamera();
 
 
-  renderer->AddVolume(volume);
-  renderer->ResetCamera();
-//  renderer->GetActiveCamera()->Zoom(1.4);
-  renderer->GetActiveCamera()->Zoom(0.7);
 
   struct userData *foo = new struct userData();
   foo->RenderWindow = renWin;
