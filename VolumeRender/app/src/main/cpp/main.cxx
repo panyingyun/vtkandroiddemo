@@ -34,7 +34,7 @@
 
 #include "vtkNew.h"
 
-#define SYNTHETIC 1
+
 #ifdef SYNTHETIC
 #include "vtkImageCast.h"
 #include "vtkRTAnalyticSource.h"
@@ -126,7 +126,7 @@ JNIEXPORT jlong JNICALL Java_kitware_com_volumerender_VolumeRenderLib_init(JNIEn
   pwf->AddPoint(255, 0.1);
 #else
   vtkNew<vtkNrrdReader> mi;
-  mi->SetFileName("/sdcard/CT-chest-quantized.nrrd");
+  mi->SetFileName("/sdcard/CT-chest.nrrd");
   mi->Update();
 
   double range[2];
