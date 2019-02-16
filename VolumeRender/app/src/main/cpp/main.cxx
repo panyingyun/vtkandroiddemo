@@ -35,12 +35,21 @@
 #include "vtkNew.h"
 
 
-#ifdef SYNTHETIC
-#include "vtkImageCast.h"
-#include "vtkRTAnalyticSource.h"
-#else
-#include "vtkNrrdReader.h"
-#endif
+#include <vtkActor.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkContourFilter.h>
+#include <vtkDataSetTriangleFilter.h>
+#include <vtkPiecewiseFunction.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkStructuredPointsReader.h>
+#include <vtkThreshold.h>
+#include <vtkUnstructuredGridVolumeRayCastMapper.h>
+#include <vtkVolumeProperty.h>
+#include <vtkGPUVolumeRayCastMapper.h>
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkVolumeProperty.h"
@@ -108,66 +117,48 @@ JNIEXPORT jlong JNICALL Java_kitware_com_volumerender_VolumeRenderLib_init(JNIEn
 
   vtkNew<vtkOpenGLGPUVolumeRayCastMapper> volumeMapper;
 
-  vtkNew<vtkPiecewiseFunction> pwf;
 
-#ifdef SYNTHETIC
-  vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-63, 64,
-                          -63, 64,
-                          -63, 64);
-  wavelet->SetCenter(0.0, 0.0, 0.0);
 
-  vtkNew<vtkImageCast> ic;
-  ic->SetInputConnection(wavelet->GetOutputPort());
-  ic->SetOutputScalarTypeToUnsignedChar();
-  volumeMapper->SetInputConnection(ic->GetOutputPort());
-
-  pwf->AddPoint(0, 0);
-  pwf->AddPoint(255, 0.1);
-#else
-  vtkNew<vtkNrrdReader> mi;
-  mi->SetFileName("/sdcard/CT-chest.nrrd");
+  vtkNew<vtkStructuredPointsReader> mi;
+  mi->SetFileName("/sdcard/mummy.128.vtk");
   mi->Update();
 
-  double range[2];
-  mi->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
-  LOGI("Min %f Max %f type %s", range[0], range[1], mi->GetOutput()->GetScalarTypeAsString());
+	// Create transfer mapping scalar value to opacity
+	vtkSmartPointer<vtkPiecewiseFunction> opacityTransferFunction =
+		vtkSmartPointer<vtkPiecewiseFunction>::New();
+	opacityTransferFunction->AddPoint(70, 0.00);
+	opacityTransferFunction->AddPoint(90, 0.40);
+	opacityTransferFunction->AddPoint(180, 0.60);
 
-  volumeMapper->SetInputConnection(mi->GetOutputPort());
+	// Create transfer mapping scalar value to color
+	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
+		vtkSmartPointer<vtkColorTransferFunction>::New();
+	colorTransferFunction->AddRGBPoint(0.000, 0.00, 0.00, 0.00);
+	colorTransferFunction->AddRGBPoint(64.00, 1.00, 0.52, 0.30);
+	colorTransferFunction->AddRGBPoint(190.0, 1.00, 1.00, 1.00);
+	colorTransferFunction->AddRGBPoint(220.0, 0.20, 0.20, 0.20);
 
-  double tweak = 80.0;
-  pwf->AddPoint(0, 0);
-  pwf->AddPoint(255*(67.0106+tweak)/3150.0, 0);
-  pwf->AddPoint(255*(251.105+tweak)/3150.0, 0.3);
-  pwf->AddPoint(255*(439.291+tweak)/3150.0, 0.5);
-  pwf->AddPoint(255*3071/3150.0, 0.616071);
-#endif
+		vtkSmartPointer<vtkVolumeProperty> volumeProperty =
+    		vtkSmartPointer<vtkVolumeProperty>::New();
+    	volumeProperty->SetColor(colorTransferFunction);
+    	volumeProperty->SetScalarOpacity(opacityTransferFunction);
+    	volumeProperty->ShadeOn();
+    	volumeProperty->SetInterpolationTypeToLinear();
+    	volumeProperty->SetAmbient(0.4);
+    	volumeProperty->SetDiffuse(0.6);
+    	volumeProperty->SetSpecular(0.2);
 
-  volumeMapper->SetAutoAdjustSampleDistances(1);
-  volumeMapper->SetSampleDistance(0.5);
+	vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper =
+		vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
+	volumeMapper->SetInputConnection(mi->GetOutputPort());
 
-  vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->SetShade(1);
-  volumeProperty->SetInterpolationTypeToLinear();
+	vtkSmartPointer<vtkVolume> volume =
+		vtkSmartPointer<vtkVolume>::New();
+	volume->SetMapper(volumeMapper);
+	volume->SetProperty(volumeProperty);
 
-  vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddRGBPoint(0, 0, 0, 0);
-  ctf->AddRGBPoint(255*67.0106/3150.0, 0.54902, 0.25098, 0.14902);
-  ctf->AddRGBPoint(255*251.105/3150.0, 0.882353, 0.603922, 0.290196);
-  ctf->AddRGBPoint(255*439.291/3150.0, 1, 0.937033, 0.954531);
-  ctf->AddRGBPoint(255*3071/3150.0, 0.827451, 0.658824, 1);
 
-  volumeProperty->SetColor(ctf.GetPointer());
-  volumeProperty->SetScalarOpacity(pwf.GetPointer());
-
-  vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
-
-  renderer->SetBackground2(0.2,0.3,0.4);
-  renderer->SetBackground(0.1,0.1,0.1);
-  renderer->GradientBackgroundOn();
-  renderer->AddVolume(volume.GetPointer());
+  renderer->AddVolume(volume);
   renderer->ResetCamera();
 //  renderer->GetActiveCamera()->Zoom(1.4);
   renderer->GetActiveCamera()->Zoom(0.7);
