@@ -4,7 +4,7 @@
 	
 	https://github.com/panyingyun/vtkandroiddemo/blob/master/vtkandroid/JavaVTK.apk
 	
-	![JavaVTK](androiddemo.jpg)
+![JavaVTK](androiddemo.jpg)
 	
 
 ### VTK Android移植过程记录：
