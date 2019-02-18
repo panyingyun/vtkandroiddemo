@@ -1,5 +1,12 @@
 ## CentOS 7.2 CMake Cross Build VTK for Android Application
 
+	测试APK JavaVTK.apk 下载地址 和 运行截图
+	
+	https://github.com/panyingyun/vtkandroiddemo/blob/master/vtkandroid/JavaVTK.apk
+	
+	![JavaVTK](androiddemo.jpg)
+	
+
 ### VTK Android移植过程记录：
 
 #### T1、github 建立新的repo用于记录该过程
