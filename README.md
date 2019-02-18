@@ -84,51 +84,55 @@
 	yum install mesa-libGLU-devel
 	yum install libXt-devel
 	
-
-	
-	cmake -DCMAKE_TOOLCHAIN_FILE=$NDK_ROOT/build/cmake/android.toolchain.cmake  \
+	cmake  -DCMAKE_TOOLCHAIN_FILE=$NDK_ROOT/build/cmake/android.toolchain.cmake  \
 	-DCMAKE_ANDROID_NDK=$NDK_ROOT \
-	-DCMAKE_SYSTEM_NAME=Android \
 	-DCMAKE_VERBOSE_MAKE=ON \
+	-DCMAKE_SYSTEM_NAME=Android \
 	-DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_CXX_FLAGS='-fpic -fexceptions -frtti' \
+	-DCMAKE_CXX_FLAGS='-std=c++11 -fpic -fexceptions -frtti' \
 	-DCMAKE_C_FLAGS='-fpic' \
 	-DCMAKE_ANDROID_STL_TYPE='c++_static' \
 	-DCMAKE_SYSTEM_VERSION=24 \
 	-DVTK_ANDROID_BUILD=ON \
-	-DBUILD_EXAMPLES=ON \
 	-DANDROID_NATIVE_API_LEVEL=24 \
 	-DOPENGL_ES_VERSION=3.0 ..
 
-	make -j8
+	cmake --build . 
+
+	**注意：遇到 vtk error: 'round' is not a member of 'std' ，则将  "std::round" 直接修改为 "round" 即可继续编译**
 	
 	直接这样就可以了
 	
 	参考：
-	https://github.com/panyingyun/vtkandroiddemo/blob/master/vtkandroid/auto_build_android.sh
+	https://github.com/panyingyun/vtkandroiddemo/tree/master/vtkandroid/auto_build_android.sh
 
+	Android编译完成的测试APK: JavaVTK.apk
+	https://github.com/panyingyun/vtkandroiddemo/blob/master/vtkandroid/JavaVTK.apk
 
 #### T7、 Compiled Android VTK library
 
 	also, You can also use the compiled Android VTK library.
 	you can download vtk-android.tar.gz 
-	from https://github.com/panyingyun/vtkandroiddemo/releases/download/1.0/vtk-android.tar.gz.	
+	from https://github.com/panyingyun/vtkandroiddemo/blob/master/vtkandroid/vtk-android.tar.gz
 	
-#### T8、创建vtkdemo工程，引入java调用native形式的VTK Demo
+#### T8、创建JavaVTK2工程，引入java调用native形式的VTK Demo
 
-    vtkdemo
-	
-#### T9、CMake cross-compiling-for-android
+    https://github.com/panyingyun/vtkandroiddemo/tree/master/JavaVTK2
+
+
+#### T9、参考链接
 
 	https://cmake.org/cmake/help/v3.7/manual/cmake-toolchains.7.html#cross-compiling-for-android
 	https://cmake.org/cmake/help/v3.7/manual/cmake-toolchains.7.html#cross-compiling-for-android-with-a-standalone-toolchain
 
-#### T10、Crash Now
+	
+#### T10、注意 如果遇到下面的错误，请使用VTK8.2.0库进行编译，旧库存在opengles兼容性问题
 
-	Crash log, Maybe glESv3 have not support glDrawBuffer, only support glDrawBuffers.
-	Call some help from :
 	https://gitlab.kitware.com/vtk/vtk/issues/16913
 	https://github.com/spherik/Android-vtk-skeleton/issues/1
+	
+	Crash log, Maybe glESv3 have not support glDrawBuffer, only support glDrawBuffers.
+		Call some help from :
 	
 ```
 	--------- beginning of crash
