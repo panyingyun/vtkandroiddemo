@@ -22,7 +22,6 @@
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkTexture.h>
-#include <vtkTextureMapToSphere.h>
 #include <vtkCamera.h>
 #include <vtkDebugLeaks.h>
 #include <vtkGlyph3D.h>
@@ -119,23 +118,23 @@ JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv *env, jo
   source->SetThetaResolution(80);
 
   // Create TextureMapToSphere
-  vtkNew<vtkTextureMapToSphere> texturemap;
-  texturemap->SetInputConnection(source->GetOutputPort());
+  //vtkNew<vtkTextureMapToSphere> texturemap;
+  //texturemap->SetInputConnection(source->GetOutputPort());
 
   // Create Texture
-  vtkNew<vtkJPEGReader> jPEGReader;
-  jPEGReader->SetFileName("/mnt/sdcard/earth.jpg");
-  vtkNew<vtkTexture> texture;
-  texture->SetInputConnection(jPEGReader->GetOutputPort());
+  //vtkNew<vtkJPEGReader> jPEGReader;
+  //jPEGReader->SetFileName("/mnt/sdcard/earth.jpg");
+  //vtkNew<vtkTexture> texture;
+  //texture->SetInputConnection(jPEGReader->GetOutputPort());
 
   // Create Data Set Mapper
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(texturemap->GetOutputPort());
+  mapper->SetInputConnection(source->GetOutputPort());
 
   // Create Actor
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
-  actor->SetTexture(texture);
+  //actor->SetTexture(texture);
 
   renderer->AddActor(actor.Get());
   renderer->SetBackground(0.4, 0.5, 0.6);
